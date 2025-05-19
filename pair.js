@@ -12,7 +12,7 @@ const {
     makeCacheableSignalKeyStore,
     Browsers,
     jidNormalizedUser
-} = require("baileys");
+} = require("baileys-pro");
 
 if (fs.existsSync('./session')) {
     fs.emptyDirSync('./session');
