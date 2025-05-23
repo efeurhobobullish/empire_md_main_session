@@ -13,6 +13,7 @@
   "author": "𝖤𝗆𝗉𝗂𝗋𝖾 𝖳𝖾𝖼𝗁",
   "license": "GPL-3.0 license",
   "dependencies": {
+
     "baileys-mod: "6.8.3",
     "awesome-phonenumber": "^7.4.0",
     "fs-extra": "11.3.0",
