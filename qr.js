@@ -10,7 +10,7 @@ const {
     makeCacheableSignalKeyStore,
     Browsers,
     jidNormalizedUser
-} = require("@whiskeysockets/baileys");
+} = require("baileys-mod");
 const { upload } = require('./mega');
 
 let router = express.Router();
