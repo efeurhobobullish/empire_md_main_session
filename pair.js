@@ -12,7 +12,7 @@ const {
     makeCacheableSignalKeyStore,
     Browsers,
     jidNormalizedUser
-} = require("baileys-mod");
+} = require("@whiskeysockets/baileys");
 
 if (fs.existsSync('./session')) {
     fs.emptyDirSync('./session');
