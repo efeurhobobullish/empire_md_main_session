@@ -10,7 +10,7 @@ const {
     makeCacheableSignalKeyStore,
     Browsers,
     jidNormalizedUser
-} = require("baileys-mod");
+} = require("baileys");
 const { upload } = require('./mega');
 
 let router = express.Router();
