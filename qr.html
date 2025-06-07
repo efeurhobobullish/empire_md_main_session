@@ -52,13 +52,6 @@
       border-radius: 2px;
       pointer-events: none;
     }
-    .expired {
-      animation: blink 0.8s infinite alternate;
-    }
-    @keyframes blink {
-      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
-      100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-    }
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -78,22 +71,22 @@
     <div class="p-6 text-center">
       <!-- QR Code with static left border -->
       <div class="qr-container mb-5 flex justify-center">
-        <img id="qr-image" src="/qr" alt="QR CODE" 
-             class="w-52 h-52 rounded-lg bg-white p-2 animate-pulse-glow">
+        <img id="qr-image" src="/qr" alt="QR CODE"
+             class="w-52 h-52 rounded-lg bg-white p-2 border border-gray-300">
       </div>
 
       <p id="legend" class="text-gray-600 mb-4">Scan to connect your device</p>
 
       <!-- Progress bar -->
       <div class="mb-5">
-        <progress id="progressBar" value="0" max="30" 
+        <progress id="progressBar" value="0" max="30"
                   class="w-full h-1.5 rounded-full [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-gradient-to-r from-primary-500 to-primary-600">
         </progress>
         <p class="text-xs text-primary-500 mt-1">Expires in <span id="timeValue">30</span> seconds</p>
       </div>
 
       <!-- Refresh button -->
-      <button onclick="window.location.reload()" 
+      <button onclick="window.location.reload()"
               class="w-full py-2.5 px-4 bg-primary-50 hover:bg-primary-100 text-primary-600 font-medium rounded-lg transition-all duration-200 border border-primary-200 hover:border-primary-300 flex items-center justify-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -121,8 +114,6 @@
         progressBar.style.display = 'none';
         timeValue.parentElement.textContent = "QR expired";
         legendText.innerHTML = "<span class='text-red-500'>Expired!</span> Please refresh";
-        qrImage.classList.add("expired");
-        qrImage.classList.remove("animate-pulse-glow");
       } else {
         progressBar.value = 30 - timeleft;
         timeValue.textContent = timeleft;
