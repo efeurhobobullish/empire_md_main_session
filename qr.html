@@ -1,161 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empire_Md Qr</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Empire_Md | QR Authentication</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8'
+            }
+          },
+          animation: {
+            'pulse-glow': 'pulse 2s infinite',
+            'fade-in': 'fadeIn 0.5s ease-out'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            }
+          }
         }
-
-        body {
-            background: #0a0a0a;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        .bg {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
-            backdrop-filter: blur(12px);
-            text-align: center;
-            width: 330px;
-            position: relative;
-            z-index: 2;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        #QR-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        #qr-image {
-            width: 220px;
-            height: 220px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-            transition: 0.3s ease-in-out;
-            animation: pulse 2s infinite alternate ease-in-out;
-        }
-
-        #title-container h2 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-
-        .legend {
-            font-size: 13px;
-            opacity: 0.8;
-        }
-
-        #description-container {
-            margin-top: 12px;
-        }
-
-        progress {
-            width: 70%;
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        progress::-webkit-progress-bar {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        progress::-webkit-progress-value {
-            background: cyan;
-            border-radius: 3px;
-            transition: background 0.3s;
-        }
-
-        a {
-            display: block;
-            margin-top: 12px;
-            text-decoration: none;
-            color: cyan;
-            font-weight: bold;
-            transition: 0.3s ease-in-out;
-        }
-
-        a:hover {
-            color: rgba(0, 255, 255, 0.8);
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); }
-            100% { transform: scale(1.03); box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); }
-        }
-
-        /* Blinking Red Effect when Expired */
-        .expired {
-            animation: blink 0.8s infinite alternate;
-        }
-
-        @keyframes blink {
-            0% { filter: hue-rotate(0deg); box-shadow: 0 0 15px red; }
-            100% { filter: hue-rotate(180deg); box-shadow: 0 0 20px red; }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+    }
+    .qr-container {
+      position: relative;
+    }
+    .qr-container::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -6px;
+      width: 2px;
+      background-color: #bfdbfe;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .expired {
+      animation: blink 0.8s infinite alternate;
+    }
+    @keyframes blink {
+      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+      100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+    }
+  </style>
 </head>
-<body>
-
-    <div class="bg" id="content">
-        <div id="QR-content">
-            <img id="qr-image" src="/qr" alt="QR CODE">
-        </div>
-        <div id="title-container">
-            <h2 id="main">Empire_Md Qr</h2>
-            <p class="legend" id="legend">Scan The QR Code</p>
-        </div>
-        <div id="description-container">
-            <progress value="0" max="30" id="progressBar"></progress>
-        </div>
-        <a href="javascript:history.go(0)">Click Here to Reload Page</a>         
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-sm overflow-hidden border border-gray-100 animate-fade-in">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-600 to-primary-500 p-5 text-center text-white">
+      <div class="w-16 h-16 bg-white/10 rounded-full mx-auto mb-3 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </div>
+      <h1 class="text-xl font-semibold">Empire_Md QR</h1>
+      <p class="text-sm opacity-90 mt-1">Secure Authentication</p>
     </div>
 
-    <script>
-        var timeleft = 30;
-        var progressBar = document.getElementById("progressBar");
-        var qrImage = document.getElementById("qr-image");
-        var legendText = document.getElementById("legend");
-        var mainTitle = document.getElementById("main");
+    <!-- Content -->
+    <div class="p-6 text-center">
+      <!-- QR Code with static left border -->
+      <div class="qr-container mb-5 flex justify-center">
+        <img id="qr-image" src="/qr" alt="QR CODE" 
+             class="w-52 h-52 rounded-lg bg-white p-2 animate-pulse-glow">
+      </div>
 
-        var downloadTimer = setInterval(function() {
-            if (timeleft <= 0) {
-                clearInterval(downloadTimer);
-                progressBar.remove(); 
-                mainTitle.innerHTML = "❌ QR Expired! Please Reload";
-                legendText.innerHTML = "";
-                qrImage.classList.add("expired"); // Apply blinking red effect
-            } else {
-                progressBar.value = 30 - timeleft;
-                timeleft -= 1;
-            }
-        }, 1000);
-    </script>
+      <p id="legend" class="text-gray-600 mb-4">Scan to connect your device</p>
 
+      <!-- Progress bar -->
+      <div class="mb-5">
+        <progress id="progressBar" value="0" max="30" 
+                  class="w-full h-1.5 rounded-full [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-gradient-to-r from-primary-500 to-primary-600">
+        </progress>
+        <p class="text-xs text-primary-500 mt-1">Expires in <span id="timeValue">30</span> seconds</p>
+      </div>
+
+      <!-- Refresh button -->
+      <button onclick="window.location.reload()" 
+              class="w-full py-2.5 px-4 bg-primary-50 hover:bg-primary-100 text-primary-600 font-medium rounded-lg transition-all duration-200 border border-primary-200 hover:border-primary-300 flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Refresh QR Code
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-3 text-center border-t border-gray-100 bg-gray-50">
+      <p class="text-xs text-gray-400">Secure end-to-end connection</p>
+    </div>
+  </div>
+
+  <script>
+    var timeleft = 30;
+    var progressBar = document.getElementById("progressBar");
+    var qrImage = document.getElementById("qr-image");
+    var legendText = document.getElementById("legend");
+    var timeValue = document.getElementById("timeValue");
+
+    var downloadTimer = setInterval(function() {
+      if (timeleft <= 0) {
+        clearInterval(downloadTimer);
+        progressBar.style.display = 'none';
+        timeValue.parentElement.textContent = "QR expired";
+        legendText.innerHTML = "<span class='text-red-500'>Expired!</span> Please refresh";
+        qrImage.classList.add("expired");
+        qrImage.classList.remove("animate-pulse-glow");
+      } else {
+        progressBar.value = 30 - timeleft;
+        timeValue.textContent = timeleft;
+        timeleft -= 1;
+
+        if (timeleft <= 10) {
+          timeValue.classList.add("text-red-500");
+          timeValue.classList.remove("text-primary-500");
+        }
+      }
+    }, 1000);
+  </script>
 </body>
 </html>
