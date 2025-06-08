@@ -25,6 +25,15 @@ app.get('/pair', (req, res) => {
     res.sendFile(__path + '/pair.html');
 });
 
+app.get('/donate', (req, res) => {
+    res.sendFile(__path + '/donate.html');
+});
+
+app.get('/thank-you', (req, res) => {
+    res.sendFile(__path + '/thank-you.html');
+});
+
+
 app.get('/', (req, res) => {
     res.sendFile(__path + '/main.html');
 });
