@@ -12,7 +12,7 @@ require('events').EventEmitter.defaultMaxListeners = 1000;
 
 // MongoDB Connection
 mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb+srv://empiretechapp:bullishbb3@empiretechapi.19vipus.mongodb.net/?retryWrites=true&w=majority&appName=empiretechapi',
+  process.env.MONGODB_URI || 'mongodb+srv://empiretech:FcK8BIY1TgpwozDW@hostempiretech.jtecovm.mongodb.net/?retryWrites=true&w=majority&appName=hostempiretech',
   { useNewUrlParser: true, useUnifiedTopology: true }
 )
 .then(() => console.log('✅ Connected to MongoDB'))
