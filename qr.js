@@ -4,7 +4,7 @@ const { exec } = require("child_process");
 const pino = require("pino");
 const { toBuffer } = require("qrcode");
 const {
-    default: makeWASocket,
+    default: makeWASocket, 
     useMultiFileAuthState,
     delay,
     makeCacheableSignalKeyStore,
