@@ -16,7 +16,7 @@ const {
 } = require('baileys');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 const upload = multer({ dest: 'uploads/' });
 
 app.use(cors());
