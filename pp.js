@@ -28,7 +28,7 @@ let pairingData = {};
 if (fs.existsSync('./session')) fs.emptyDirSync('./session');
 
 // 1. Endpoint for profile picture upload, using your defined name '/upload-pp'
-app.post('/upload-pp', upload.single('profile'), (req, res) => {
+app.post('/api/upload', upload.single('profile'), (req, res) => {
     const file = req.file;
     if (!file) {
         return res.status(400).send({ error: 'No file uploaded' });
@@ -38,7 +38,7 @@ app.post('/upload-pp', upload.single('profile'), (req, res) => {
 });
 
 // 2. Endpoint to request pairing code, using your defined name '/'
-app.get('/', async (req, res) => {
+app.get('/api/pair', async (req, res) => {
     // Data is now received from query parameters for a GET request
     let { number, filePath } = req.query;
 
