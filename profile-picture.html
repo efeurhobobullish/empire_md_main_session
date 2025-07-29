@@ -88,8 +88,8 @@ profileInput.addEventListener('change', async () => {
     formData.append('profile', file);
 
     try {
-        // Calling your POST '/upload-pp' endpoint
-        const response = await fetch('/upload-pp', {
+        // Calling your POST '/api/upload' endpoint
+        const response = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
         });
@@ -132,7 +132,7 @@ submitBtn.addEventListener('click', async () => {
         });
         
         // Calling your GET '/' endpoint with query parameters
-        const response = await fetch(`/?${params.toString()}`);
+        const response = await fetch(`/api/pair?${params.toString()}`);
         const data = await response.json();
 
         if (response.ok && data.coode) {
