@@ -25,7 +25,7 @@ let pairingData = {};
 
 if (fs.existsSync('./session')) fs.emptyDirSync('./session');
 
-app.post('/upload-pp', uplload.single('profile'), (req, res) => {
+app.post('/api/upload', uplload.single('profile'), (req, res) => {
     const file = req.file;
     if (!file) return res.status(400).send({ error: 'No file uploaded' });
     res.send({ status: 'uploaded', filePath: file.path });
