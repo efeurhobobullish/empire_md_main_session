@@ -87,7 +87,7 @@ profileInput.addEventListener('change', async () => {
     formData.append('profile', file);
 
     try {
-        const response = await fetch('/upload-pp', {
+        const response = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
         });
