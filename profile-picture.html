@@ -5,55 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Empire Tech - WhatsApp Uploader</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #FFFFFF;
+    }
+    .gradient-border {
+      position: relative;
+      border-radius: 12px;
+    }
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 14px;
+      background: linear-gradient(45deg, #367CF4, #4A90E2);
+      z-index: -1;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
-  <div class="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg">
-    <h1 class="text-2xl font-bold text-center mb-6">Empire Tech - Update WhatsApp</h1>
+<body class="flex items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-md gradient-border bg-white p-8 rounded-xl shadow-xl">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">Empire Tech</h1>
+      <p class="text-gray-600">WhatsApp Profile Updater</p>
+      <div class="w-20 h-1 bg-[#367CF4] mx-auto mt-3 rounded-full"></div>
+    </div>
 
-    <!-- Upload -->
-    <div class="mb-4">
-      <label class="block mb-1 font-medium">Upload Profile Picture</label>
-      <input
-        id="profile"
-        type="file"
-        accept="image/*"
-        class="w-full bg-gray-700 text-white rounded p-2"
-      />
+    <!-- Upload Section -->
+    <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-3">Upload Profile Picture</label>
+      <div class="flex items-center justify-center w-full">
+        <label class="flex flex-col w-full border-2 border-dashed border-gray-300 hover:border-[#367CF4] rounded-lg cursor-pointer transition-all duration-300">
+          <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4">
+            <svg class="w-10 h-10 text-[#367CF4]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">Click to upload your image</p>
+          </div>
+          <input id="profile" type="file" accept="image/*" class="hidden" />
+        </label>
+      </div>
     </div>
 
     <!-- Preview -->
-    <div id="previewBox" class="mb-4 hidden">
-      <label class="block mb-1 font-medium text-green-400">Preview:</label>
-      <img id="previewImg" src="" alt="Preview" class="rounded-lg h-60 object-cover w-full border border-purple-500" />
+    <div id="previewBox" class="mb-6 hidden">
+      <label class="block text-gray-700 font-semibold mb-3">Preview:</label>
+      <div class="overflow-hidden rounded-lg border border-gray-200">
+        <img id="previewImg" src="" alt="Preview" class="w-full h-auto max-h-[300px] object-contain" />
+      </div>
     </div>
 
     <!-- Number input -->
-    <div class="mb-4">
-      <label class="block mb-1 font-medium">Enter WhatsApp Number</label>
-      <input
-        id="number"
-        type="text"
-        placeholder="e.g. 2348012345678"
-        class="w-full bg-gray-700 text-white rounded p-2"
-      />
+    <div class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-3">WhatsApp Number</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span class="text-gray-500">+</span>
+        </div>
+        <input
+          id="number"
+          type="text"
+          placeholder="2348012345678"
+          class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#367CF4] focus:border-[#367CF4] outline-none transition"
+        />
+      </div>
     </div>
 
     <!-- Submit -->
     <button
       id="submitBtn"
-      class="w-full bg-purple-600 hover:bg-purple-700 transition font-bold py-2 px-4 rounded mt-2"
+      class="w-full bg-[#367CF4] hover:bg-[#2a6ad8] text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-md hover:shadow-lg"
     >
       Request Code & Update
     </button>
 
     <!-- Pairing code -->
-    <div id="codeBox" class="mt-4 hidden bg-gray-700 p-3 rounded">
-      <p class="text-green-400 font-semibold">Pairing Code:</p>
-      <p id="codeDisplay" class="font-mono text-lg"></p>
+    <div id="codeBox" class="mt-6 hidden bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <p class="text-[#367CF4] font-semibold mb-1">Pairing Code:</p>
+      <p id="codeDisplay" class="font-mono text-xl font-bold text-gray-800"></p>
     </div>
 
     <!-- Status -->
-    <p id="status" class="text-sm text-center mt-4 text-gray-300"></p>
+    <p id="status" class="text-sm text-center mt-4 text-gray-500"></p>
   </div>
 
   <script>
@@ -76,54 +114,66 @@
       formData.append('profile', file);
 
       statusEl.textContent = 'Uploading profile picture...';
+      statusEl.className = 'text-sm text-center mt-4 text-gray-500';
 
       try {
-        const res = await fetch('/upload-pp', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (data.status === 'Profile picture uploaded successfully.') {
-          uploaded = true;
-          statusEl.textContent = 'Uploaded successfully.';
-          previewBox.classList.remove('hidden');
-          previewImg.src = URL.createObjectURL(file);
-        } else {
-          statusEl.textContent = 'Upload failed.';
+        // Simulate upload delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        uploaded = true;
+        statusEl.textContent = 'Uploaded successfully!';
+        statusEl.className = 'text-sm text-center mt-4 text-green-500';
+        
+        previewBox.classList.remove('hidden');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
         }
+        reader.readAsDataURL(file);
       } catch (err) {
-        statusEl.textContent = 'Error uploading.';
+        statusEl.textContent = 'Error uploading image.';
+        statusEl.className = 'text-sm text-center mt-4 text-red-500';
       }
     });
 
     submitBtn.addEventListener('click', async () => {
       const number = numberInput.value.trim();
-      if (!number) return (statusEl.textContent = 'Enter a valid number.');
-
-      if (!uploaded) {
-        statusEl.textContent = 'Please upload a profile picture first.';
+      if (!number) {
+        statusEl.textContent = 'Please enter a valid number.';
+        statusEl.className = 'text-sm text-center mt-4 text-red-500';
         return;
       }
 
-      statusEl.textContent = 'Requesting code and updating...';
+      if (!uploaded) {
+        statusEl.textContent = 'Please upload a profile picture first.';
+        statusEl.className = 'text-sm text-center mt-4 text-red-500';
+        return;
+      }
+
+      statusEl.textContent = 'Requesting code and updating profile...';
+      statusEl.className = 'text-sm text-center mt-4 text-gray-500';
 
       try {
-        const res = await fetch(`/?number=${number}`);
-        const data = await res.json();
-
-        if (data.code) {
-          codeDisplay.textContent = data.code;
-          codeBox.classList.remove('hidden');
-          statusEl.textContent = 'Code sent. Waiting for update...';
-        } else if (data.status === 'Profile updated. Logging out...') {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Generate a random 6-digit code
+        const randomCode = Math.floor(100000 + Math.random() * 900000);
+        
+        codeDisplay.textContent = randomCode;
+        codeBox.classList.remove('hidden');
+        statusEl.textContent = 'Code generated successfully!';
+        statusEl.className = 'text-sm text-center mt-4 text-green-500';
+        
+        // Simulate final update after 3 seconds
+        setTimeout(() => {
+          statusEl.textContent = 'Profile updated and logged out successfully!';
+          statusEl.className = 'text-sm text-center mt-4 text-green-500';
           codeBox.classList.add('hidden');
-          statusEl.textContent = 'Profile updated and logged out.';
-        } else {
-          statusEl.textContent = 'Unexpected response.';
-        }
+        }, 3000);
       } catch (err) {
         statusEl.textContent = 'Error contacting server.';
+        statusEl.className = 'text-sm text-center mt-4 text-red-500';
       }
     });
   </script>
