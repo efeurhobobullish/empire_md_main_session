@@ -9,93 +9,61 @@
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #FFFFFF;
-    }
-    .gradient-border {
-      position: relative;
-      border-radius: 12px;
-    }
-    .gradient-border::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      border-radius: 14px;
-      background: linear-gradient(45deg, #367CF4, #4A90E2);
-      z-index: -1;
+      background-color: #f7fafc;
     }
   </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-  <div class="w-full max-w-md gradient-border bg-white p-8 rounded-xl shadow-xl">
+<body class="flex items-center justify-center min-h-screen p-4 bg-gray-100">
+  <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">Empire Tech</h1>
-      <p class="text-gray-600">WhatsApp Profile Updater</p>
-      <div class="w-20 h-1 bg-[#367CF4] mx-auto mt-3 rounded-full"></div>
+      <h1 class="text-3xl font-bold text-gray-800">Empire Tech</h1>
+      <p class="text-gray-500">WhatsApp Profile Updater</p>
+      <div class="w-20 h-1 bg-blue-600 mx-auto mt-3 rounded-full"></div>
     </div>
 
-    <!-- Upload Section -->
-    <div class="mb-6">
-      <label class="block text-gray-700 font-semibold mb-3">Upload Profile Picture</label>
+    <div id="uploadSection" class="mb-6">
+      <label class="block text-gray-700 font-semibold mb-3">1. Upload Profile Picture</label>
       <div class="flex items-center justify-center w-full">
-        <label class="flex flex-col w-full border-2 border-dashed border-gray-300 hover:border-[#367CF4] rounded-lg cursor-pointer transition-all duration-300">
-          <div class="flex flex-col items-center justify-center pt-5 pb-6 px-4">
-            <svg class="w-10 h-10 text-[#367CF4]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            <p class="mt-2 text-sm text-gray-500">Click to upload your image</p>
+        <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-lg cursor-pointer transition-all">
+          <div class="flex flex-col items-center justify-center pt-5 pb-6">
+            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4"></path></svg>
+            <p class="text-sm text-gray-500"><span class="font-semibold">Click to upload</span></p>
           </div>
           <input id="profile" type="file" accept="image/*" class="hidden" />
         </label>
       </div>
     </div>
 
-    <!-- Preview -->
     <div id="previewBox" class="mb-6 hidden">
       <label class="block text-gray-700 font-semibold mb-3">Preview:</label>
-      <div class="overflow-hidden rounded-lg border border-gray-200">
-        <img id="previewImg" src="" alt="Preview" class="w-full h-auto max-h-[300px] object-contain" />
+      <div class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+        <img id="previewImg" src="" alt="Image Preview" class="w-full h-auto object-contain" style="max-height: 400px;" />
       </div>
     </div>
 
-    <!-- Number input -->
-    <div class="mb-6">
-      <label class="block text-gray-700 font-semibold mb-3">WhatsApp Number</label>
+    <div id="numberSection" class="mb-6 hidden">
+      <label for="number" class="block text-gray-700 font-semibold mb-3">2. Enter WhatsApp Number</label>
       <div class="relative">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <span class="text-gray-500">+</span>
-        </div>
-        <input
-          id="number"
-          type="text"
-          placeholder="2348012345678"
-          class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#367CF4] focus:border-[#367CF4] outline-none transition"
-        />
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">+</span>
+        <input id="number" type="text" placeholder="2348012345678" class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" />
       </div>
     </div>
 
-    <!-- Submit -->
-    <button
-      id="submitBtn"
-      class="w-full bg-[#367CF4] hover:bg-[#2a6ad8] text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-md hover:shadow-lg"
-    >
-      Request Code & Update
+    <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+      Get Pairing Code
     </button>
 
-    <!-- Pairing code -->
-    <div id="codeBox" class="mt-6 hidden bg-gray-50 p-4 rounded-lg border border-gray-200">
-      <p class="text-[#367CF4] font-semibold mb-1">Pairing Code:</p>
-      <p id="codeDisplay" class="font-mono text-xl font-bold text-gray-800"></p>
+    <div id="codeBox" class="mt-6 hidden bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
+      <p class="text-gray-600 font-semibold mb-2">Your Pairing Code:</p>
+      <p id="codeDisplay" class="font-mono text-3xl font-bold text-blue-600 tracking-widest"></p>
+      <p class="text-xs text-gray-500 mt-2">Go to WhatsApp > Settings > Linked Devices > Link with phone number</p>
     </div>
 
-    <!-- Status -->
-    <p id="status" class="text-sm text-center mt-4 text-gray-500"></p>
+    <p id="status" class="text-sm text-center mt-4 text-gray-500 h-5"></p>
   </div>
 
-  <script>
-    const profileInput = document.getElementById('profile');
+<script>
+const profileInput = document.getElementById('profile');
 const numberInput = document.getElementById('number');
 const submitBtn = document.getElementById('submitBtn');
 const statusEl = document.getElementById('status');
@@ -103,67 +71,82 @@ const codeBox = document.getElementById('codeBox');
 const codeDisplay = document.getElementById('codeDisplay');
 const previewImg = document.getElementById('previewImg');
 const previewBox = document.getElementById('previewBox');
+const numberSection = document.getElementById('numberSection');
 
-let uploaded = false;
+let uploadedFilePath = null;
 
 profileInput.addEventListener('change', async () => {
-  const file = profileInput.files[0];
-  if (!file) return;
+    const file = profileInput.files[0];
+    if (!file) return;
 
-  const formData = new FormData();
-  formData.append('profile', file);
+    previewImg.src = URL.createObjectURL(file);
+    previewBox.classList.remove('hidden');
+    statusEl.textContent = 'Uploading picture...';
+    submitBtn.disabled = true;
 
-  statusEl.textContent = 'Uploading profile picture...';
+    const formData = new FormData();
+    formData.append('profile', file);
 
-  try {
-    const res = await fetch('/upload-pp', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+        // Calling your POST '/upload-pp' endpoint
+        const response = await fetch('/upload-pp', {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await response.json();
 
-    const data = await res.json();
-    if (data.status === 'Profile picture uploaded successfully.') {
-      uploaded = true;
-      statusEl.textContent = 'Uploaded successfully.';
-      previewBox.classList.remove('hidden');
-      previewImg.src = URL.createObjectURL(file);
-    } else {
-      statusEl.textContent = 'Upload failed.';
+        if (response.ok && data.status === 'uploaded') {
+            uploadedFilePath = data.filePath;
+            statusEl.textContent = '✅ Upload complete. Please enter your number.';
+            numberSection.classList.remove('hidden');
+            submitBtn.disabled = false;
+        } else {
+            throw new Error(data.error || 'Upload failed.');
+        }
+    } catch (err) {
+        statusEl.textContent = `❌ Error: ${err.message}`;
+        previewBox.classList.add('hidden');
     }
-  } catch (err) {
-    statusEl.textContent = 'Error uploading.';
-  }
 });
 
 submitBtn.addEventListener('click', async () => {
-  const number = numberInput.value.trim();
-  if (!number) return (statusEl.textContent = 'Enter a valid number.');
-
-  if (!uploaded) {
-    statusEl.textContent = 'Please upload a profile picture first.';
-    return;
-  }
-
-  statusEl.textContent = 'Requesting code and updating...';
-
-  try {
-    const res = await fetch(`/?number=${number}`);
-    const data = await res.json();
-
-    if (data.code) {
-      codeDisplay.textContent = data.code;
-      codeBox.classList.remove('hidden');
-      statusEl.textContent = 'Code sent. Waiting for update...';
-    } else if (data.status === 'Profile updated. Logging out...') {
-      codeBox.classList.add('hidden');
-      statusEl.textContent = 'Profile updated and logged out.';
-    } else {
-      statusEl.textContent = 'Unexpected response.';
+    const number = numberInput.value.trim();
+    if (!number) {
+        statusEl.textContent = 'Please enter a valid WhatsApp number.';
+        return;
     }
-  } catch (err) {
-    statusEl.textContent = 'Error contacting server.';
-  }
+
+    if (!uploadedFilePath) {
+        statusEl.textContent = 'Please upload a profile picture first.';
+        return;
+    }
+
+    statusEl.textContent = 'Requesting pairing code...';
+    submitBtn.disabled = true;
+
+    try {
+        // Constructing query parameters for the GET request
+        const params = new URLSearchParams({
+            number: number,
+            filePath: uploadedFilePath
+        });
+        
+        // Calling your GET '/' endpoint with query parameters
+        const response = await fetch(`/?${params.toString()}`);
+        const data = await response.json();
+
+        if (response.ok && data.coode) {
+            codeDisplay.textContent = data.coode.match(/.{1,4}/g).join('-');
+            codeBox.classList.remove('hidden');
+            statusEl.textContent = 'Code received. Pair on your device to update picture.';
+        } else {
+            throw new Error(data.error || 'Failed to get pairing code.');
+        }
+    } catch (err) {
+        statusEl.textContent = `❌ Error: ${err.message}`;
+        submitBtn.disabled = false;
+    }
 });
-  </script>
+</script>
 </body>
 </html>
