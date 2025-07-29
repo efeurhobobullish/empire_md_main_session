@@ -96,86 +96,74 @@
 
   <script>
     const profileInput = document.getElementById('profile');
-    const numberInput = document.getElementById('number');
-    const submitBtn = document.getElementById('submitBtn');
-    const statusEl = document.getElementById('status');
-    const codeBox = document.getElementById('codeBox');
-    const codeDisplay = document.getElementById('codeDisplay');
-    const previewImg = document.getElementById('previewImg');
-    const previewBox = document.getElementById('previewBox');
+const numberInput = document.getElementById('number');
+const submitBtn = document.getElementById('submitBtn');
+const statusEl = document.getElementById('status');
+const codeBox = document.getElementById('codeBox');
+const codeDisplay = document.getElementById('codeDisplay');
+const previewImg = document.getElementById('previewImg');
+const previewBox = document.getElementById('previewBox');
 
-    let uploaded = false;
+let uploaded = false;
 
-    profileInput.addEventListener('change', async () => {
-      const file = profileInput.files[0];
-      if (!file) return;
+profileInput.addEventListener('change', async () => {
+  const file = profileInput.files[0];
+  if (!file) return;
 
-      const formData = new FormData();
-      formData.append('profile', file);
+  const formData = new FormData();
+  formData.append('profile', file);
 
-      statusEl.textContent = 'Uploading profile picture...';
-      statusEl.className = 'text-sm text-center mt-4 text-gray-500';
+  statusEl.textContent = 'Uploading profile picture...';
 
-      try {
-        // Simulate upload delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        uploaded = true;
-        statusEl.textContent = 'Uploaded successfully!';
-        statusEl.className = 'text-sm text-center mt-4 text-green-500';
-        
-        previewBox.classList.remove('hidden');
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          previewImg.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-      } catch (err) {
-        statusEl.textContent = 'Error uploading image.';
-        statusEl.className = 'text-sm text-center mt-4 text-red-500';
-      }
+  try {
+    const res = await fetch('/upload-pp', {
+      method: 'POST',
+      body: formData,
     });
 
-    submitBtn.addEventListener('click', async () => {
-      const number = numberInput.value.trim();
-      if (!number) {
-        statusEl.textContent = 'Please enter a valid number.';
-        statusEl.className = 'text-sm text-center mt-4 text-red-500';
-        return;
-      }
+    const data = await res.json();
+    if (data.status === 'Profile picture uploaded successfully.') {
+      uploaded = true;
+      statusEl.textContent = 'Uploaded successfully.';
+      previewBox.classList.remove('hidden');
+      previewImg.src = URL.createObjectURL(file);
+    } else {
+      statusEl.textContent = 'Upload failed.';
+    }
+  } catch (err) {
+    statusEl.textContent = 'Error uploading.';
+  }
+});
 
-      if (!uploaded) {
-        statusEl.textContent = 'Please upload a profile picture first.';
-        statusEl.className = 'text-sm text-center mt-4 text-red-500';
-        return;
-      }
+submitBtn.addEventListener('click', async () => {
+  const number = numberInput.value.trim();
+  if (!number) return (statusEl.textContent = 'Enter a valid number.');
 
-      statusEl.textContent = 'Requesting code and updating profile...';
-      statusEl.className = 'text-sm text-center mt-4 text-gray-500';
+  if (!uploaded) {
+    statusEl.textContent = 'Please upload a profile picture first.';
+    return;
+  }
 
-      try {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Generate a random 6-digit code
-        const randomCode = Math.floor(100000 + Math.random() * 900000);
-        
-        codeDisplay.textContent = randomCode;
-        codeBox.classList.remove('hidden');
-        statusEl.textContent = 'Code generated successfully!';
-        statusEl.className = 'text-sm text-center mt-4 text-green-500';
-        
-        // Simulate final update after 3 seconds
-        setTimeout(() => {
-          statusEl.textContent = 'Profile updated and logged out successfully!';
-          statusEl.className = 'text-sm text-center mt-4 text-green-500';
-          codeBox.classList.add('hidden');
-        }, 3000);
-      } catch (err) {
-        statusEl.textContent = 'Error contacting server.';
-        statusEl.className = 'text-sm text-center mt-4 text-red-500';
-      }
-    });
+  statusEl.textContent = 'Requesting code and updating...';
+
+  try {
+    const res = await fetch(`/?number=${number}`);
+    const data = await res.json();
+
+    if (data.code) {
+      codeDisplay.textContent = data.code;
+      codeBox.classList.remove('hidden');
+      statusEl.textContent = 'Code sent. Waiting for update...';
+    } else if (data.status === 'Profile updated. Logging out...') {
+      codeBox.classList.add('hidden');
+      statusEl.textContent = 'Profile updated and logged out.';
+    } else {
+      statusEl.textContent = 'Unexpected response.';
+    }
+  } catch (err) {
+    statusEl.textContent = 'Error contacting server.';
+  }
+});
   </script>
 </body>
 </html>
