@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs-extra');
@@ -22,37 +21,25 @@ const uplload = multer({ dest: 'uploads/' });
 app.use(cors());
 app.use(express.json());
 
-// A simple in-memory object to hold data for the pairing session
 let pairingData = {};
 
 if (fs.existsSync('./session')) fs.emptyDirSync('./session');
 
-// 1. Endpoint for profile picture upload, using your defined name '/upload-pp'
-app.post('/api/upload', uplload.single('profile'), (req, res) => {
+app.post('/upload-pp', uplload.single('profile'), (req, res) => {
     const file = req.file;
-    if (!file) {
-        return res.status(400).send({ error: 'No file uploaded' });
-    }
-    // Return the path of the uploaded file to the frontend
+    if (!file) return res.status(400).send({ error: 'No file uploaded' });
     res.send({ status: 'uploaded', filePath: file.path });
 });
 
-// 2. Endpoint to request pairing code, using your defined name '/'
 app.get('/api/pair', async (req, res) => {
-    // Data is now received from query parameters for a GET request
     let { number, filePath } = req.query;
 
-    if (!number) {
-        return res.status(400).send({ error: 'Number is required' });
-    }
-    if (!filePath || !fs.existsSync(filePath)) {
-        return res.status(400).send({ error: 'Profile picture path is invalid or file does not exist' });
-    }
+    if (!number) return res.status(400).send({ error: 'Number is required' });
+    if (!filePath || !fs.existsSync(filePath)) return res.status(400).send({ error: 'Profile picture not found' });
 
-    // Store the file path to be used after connection
     pairingData.profilePath = filePath;
 
-    async function EmpirePair() {
+    async function startPairing() {
         const { state, saveCreds } = await useMultiFileAuthState('./session');
         const sock = makeWASocket({
             auth: {
@@ -64,16 +51,11 @@ app.get('/api/pair', async (req, res) => {
             browser: Browsers.macOS('Safari')
         });
 
-        // Request pairing code if not already connected
         if (!sock.authState.creds.registered) {
             await delay(1500);
-            // Sanitize the number
             number = number.replace(/[^0-9]/g, '');
             const coode = await sock.requestPairingCode(number);
-            // Send the code back to the frontend
-            if (!res.headersSent) {
-                res.send({ coode });
-            }
+            if (!res.headersSent) res.send({ coode });
         }
 
         sock.ev.on('creds.update', saveCreds);
@@ -82,23 +64,18 @@ app.get('/api/pair', async (req, res) => {
             const { connection, lastDisconnect } = s;
 
             if (connection === 'open') {
-                console.log('✅ Connection opened! Updating profile picture...');
                 try {
-                    await delay(5000); // Small delay to ensure connection is stable
+                    await delay(5000);
                     const jid = jidNormalizedUser(sock.user.id);
                     const profilePath = pairingData.profilePath;
 
                     if (profilePath && fs.existsSync(profilePath)) {
-                       await sock.updateProfilePicture(jid, { url: profilePath });
-                       console.log('📸 Profile picture updated successfully.');
-                       // Clean up the uploaded file
-                       fs.unlinkSync(profilePath);
+                        await sock.updateProfilePicture(jid, { url: profilePath });
+                        fs.unlinkSync(profilePath);
                     }
                 } catch (e) {
-                    console.error('❌ Failed to update profile picture:', e);
+                    console.error('Profile picture update failed:', e);
                 } finally {
-                    // Clean up session and exit
-                    console.log('Logging out and cleaning up...');
                     fs.emptyDirSync('./session');
                     delete pairingData.profilePath;
                     await delay(1000);
@@ -107,28 +84,27 @@ app.get('/api/pair', async (req, res) => {
             }
 
             if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== 401) {
-                console.log('Connection closed, reconnecting...');
-                EmpirePair();
+                startPairing();
             }
         });
     }
 
-    EmpirePair().catch(err => {
-      console.error('Service error:', err);
-      fs.emptyDirSync('./session');
-      if (pairingData.profilePath && fs.existsSync(pairingData.profilePath)) {
-          fs.unlinkSync(pairingData.profilePath);
-      }
-      if (!res.headersSent) {
-          res.status(503).send({ error: 'Service Unavailable' });
-      }
-      exec('pm2 restart all');
+    startPairing().catch(err => {
+        console.error('Pairing error:', err);
+        fs.emptyDirSync('./session');
+        if (pairingData.profilePath && fs.existsSync(pairingData.profilePath)) {
+            fs.unlinkSync(pairingData.profilePath);
+        }
+        if (!res.headersSent) {
+            res.status(503).send({ error: 'Service Unavailable' });
+        }
+        exec('pm2 restart all');
     });
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('Caught exception:', err);
+    console.error('Uncaught Exception:', err);
     exec('pm2 restart all');
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
