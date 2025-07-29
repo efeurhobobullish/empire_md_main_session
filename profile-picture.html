@@ -26,7 +26,7 @@
       <div class="flex items-center justify-center w-full">
         <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-lg cursor-pointer transition-all">
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4"></path></svg>
+            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4"></path></svg>
             <p class="text-sm text-gray-500"><span class="font-semibold">Click to upload</span></p>
           </div>
           <input id="profile" type="file" accept="image/*" class="hidden" />
@@ -56,7 +56,7 @@
     <div id="codeBox" class="mt-6 hidden bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
       <p class="text-gray-600 font-semibold mb-2">Your Pairing Code:</p>
       <p id="codeDisplay" class="font-mono text-3xl font-bold text-blue-600 tracking-widest"></p>
-      <p class="text-xs text-gray-500 mt-2">Go to WhatsApp > Settings > Linked Devices > Link with phone number</p>
+      <p class="text-xs text-gray-500 mt-2">Go to WhatsApp &gt; Settings &gt; Linked Devices &gt; Link with phone number</p>
     </div>
 
     <p id="status" class="text-sm text-center mt-4 text-gray-500 h-5"></p>
@@ -71,7 +71,6 @@ const codeBox = document.getElementById('codeBox');
 const codeDisplay = document.getElementById('codeDisplay');
 const previewImg = document.getElementById('previewImg');
 const previewBox = document.getElementById('previewBox');
-const numberSection = document.getElementById('numberSection');
 
 let uploadedFilePath = null;
 
@@ -88,8 +87,7 @@ profileInput.addEventListener('change', async () => {
     formData.append('profile', file);
 
     try {
-        // Calling your POST '/api/upload' endpoint
-        const response = await fetch('/api/upload', {
+        const response = await fetch('/upload-pp', {
             method: 'POST',
             body: formData,
         });
@@ -97,14 +95,13 @@ profileInput.addEventListener('change', async () => {
 
         if (response.ok && data.status === 'uploaded') {
             uploadedFilePath = data.filePath;
-            statusEl.textContent = '✅ Upload complete. Please enter your number.';
-            // numberSection.classList.remove('hidden'); // This line is no longer strictly needed here if it's always visible
+            statusEl.textContent = 'Upload complete. Enter your number.';
             submitBtn.disabled = false;
         } else {
             throw new Error(data.error || 'Upload failed.');
         }
     } catch (err) {
-        statusEl.textContent = `❌ Error: ${err.message}`;
+        statusEl.textContent = `Error: ${err.message}`;
         previewBox.classList.add('hidden');
     }
 });
@@ -112,12 +109,12 @@ profileInput.addEventListener('change', async () => {
 submitBtn.addEventListener('click', async () => {
     const number = numberInput.value.trim();
     if (!number) {
-        statusEl.textContent = 'Please enter a valid WhatsApp number.';
+        statusEl.textContent = 'Enter a valid WhatsApp number.';
         return;
     }
 
     if (!uploadedFilePath) {
-        statusEl.textContent = 'Please upload a profile picture first.';
+        statusEl.textContent = 'Upload a profile picture first.';
         return;
     }
 
@@ -125,25 +122,23 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = true;
 
     try {
-        // Constructing query parameters for the GET request
         const params = new URLSearchParams({
             number: number,
             filePath: uploadedFilePath
         });
 
-        // Calling your GET '/' endpoint with query parameters
         const response = await fetch(`/api/pair?${params.toString()}`);
         const data = await response.json();
 
         if (response.ok && data.coode) {
             codeDisplay.textContent = data.coode.match(/.{1,4}/g).join('-');
             codeBox.classList.remove('hidden');
-            statusEl.textContent = 'Code received. Pair on your device to update picture.';
+            statusEl.textContent = 'Pair using the code shown.';
         } else {
             throw new Error(data.error || 'Failed to get pairing code.');
         }
     } catch (err) {
-        statusEl.textContent = `❌ Error: ${err.message}`;
+        statusEl.textContent = `Error: ${err.message}`;
         submitBtn.disabled = false;
     }
 });
