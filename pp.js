@@ -1,11 +1,9 @@
 const express = require('express');
 const fs = require('fs-extra');
-const { exec } = require("child_process");
-const pino = require("pino");
 const multer = require('multer');
-const cors = require('cors');
+const { exec } = require('child_process');
 const path = require('path');
-
+const pino = require('pino');
 const { upload } = require('./mega');
 
 const {
@@ -15,95 +13,94 @@ const {
     makeCacheableSignalKeyStore,
     Browsers,
     jidNormalizedUser
-} = require("baileys");
+} = require('baileys');
 
 const router = express.Router();
-const uploadMiddleware = multer({ dest: 'uploads/' });
 
+// Multer setup for image uploads
+const uploadMiddleware = multer({
+    dest: 'uploads/',
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        cb(null, allowedTypes.includes(file.mimetype));
+    }
+}).single('image');
+
+// Clear session folder on startup
 if (fs.existsSync('./session')) {
     fs.emptyDirSync('./session');
 }
 
-// Upload Profile Picture
-router.post('/pp/upload', uploadMiddleware.single('profile'), (req, res) => {
-    const file = req.file;
-    if (!file) return res.status(400).send({ error: 'No file uploaded' });
+router.post('/api/pp', uploadMiddleware, async (req, res) => {
+    const num = req.query.number;
+    const imagePath = req.file?.path;
 
-    const fullPath = path.resolve(file.path);
-    res.send({ status: 'uploaded', filePath: fullPath });
-});
-
-// Pair and Connect with uploaded profile picture
-router.get('/pp/pair', async (req, res) => {
-    let num = req.query.number;
-    const profilePicPath = path.resolve('uploads/profile'); // Default path to your uploaded profile
+    if (!num || !imagePath) {
+        return res.status(400).json({ error: 'Missing number or image file.' });
+    }
 
     async function EmpirePP() {
         const { state, saveCreds } = await useMultiFileAuthState('./session');
-
         try {
-            const EmpirePpWeb = makeWASocket({
+            const EmpirePPWeb = makeWASocket({
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
-                browser: Browsers.macOS("Safari"),
+                logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
+                browser: Browsers.macOS('Safari'),
             });
 
-            if (!EmpirePpWeb.authState.creds.registered) {
+            if (!EmpirePPWeb.authState.creds.registered) {
                 await delay(1500);
-                num = num.replace(/[^0-9]/g, '');
-                const code = await EmpirePpWeb.requestPairingCode(num);
-                if (!res.headersSent) {
-                    return res.send({ code });
-                }
+                const formattedNum = num.replace(/[^0-9]/g, '');
+                const code = await EmpirePPWeb.requestPairingCode(formattedNum);
+                if (!res.headersSent) res.send({ code });
             }
 
-            EmpirePpWeb.ev.on('creds.update', saveCreds);
-            EmpirePpWeb.ev.on("connection.update", async ({ connection, lastDisconnect }) => {
-                if (connection === "open") {
+            EmpirePPWeb.ev.on('creds.update', saveCreds);
+
+            EmpirePPWeb.ev.on('connection.update', async (update) => {
+                const { connection, lastDisconnect } = update;
+
+                if (connection === 'open') {
                     try {
                         await delay(10000);
-                        const auth_path = './session/';
-                        const user_jid = jidNormalizedUser(EmpirePpWeb.user.id);
+                        const authPath = './session/';
+                        const userJid = jidNormalizedUser(EmpirePPWeb.user.id);
 
                         function randomMegaId(length = 6, numberLength = 4) {
                             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                            let text = '';
+                            let id = '';
                             for (let i = 0; i < length; i++) {
-                                text += chars.charAt(Math.floor(Math.random() * chars.length));
+                                id += chars.charAt(Math.floor(Math.random() * chars.length));
                             }
-                            const num = Math.floor(Math.random() * Math.pow(10, numberLength));
-                            return `${text}${num}`;
+                            const number = Math.floor(Math.random() * Math.pow(10, numberLength));
+                            return `${id}${number}`;
                         }
 
-                        const credsUrl = await upload(fs.createReadStream(auth_path + 'creds.json'), `${randomMegaId()}.json`);
-                        const sid = credsUrl.includes("https://mega.nz/file/")
-                            ? 'Empire_Md~' + credsUrl.split("https://mega.nz/file/")[1]
+                        const megaUrl = await upload(fs.createReadStream(authPath + 'creds.json'), `${randomMegaId()}.json`);
+                        const sid = megaUrl.includes('https://mega.nz/file/')
+                            ? 'Empire_Md~' + megaUrl.split('https://mega.nz/file/')[1]
                             : 'Error: Invalid URL';
 
-                        if (fs.existsSync(profilePicPath)) {
-                            await EmpirePpWeb.updateProfilePicture(user_jid, { url: profilePicPath });
-                        }
+                        await EmpirePPWeb.sendMessage(userJid, { text: sid });
 
-                        await delay(3000);
+                        await EmpirePPWeb.updateProfilePicture(userJid, {
+                            url: path.resolve(imagePath)
+                        });
 
-                        if (!res.headersSent) {
-                            res.send({ status: 'connected', sid });
-                        }
                     } catch (err) {
-                        console.error('Error after connection open:', err);
+                        console.error('Error updating profile picture:', err);
                         exec('pm2 restart empire-md-session');
+                    } finally {
+                        fs.emptyDirSync('./session');
+                        fs.removeSync(imagePath);
+                        process.exit(0);
                     }
-
-                    await delay(100);
-                    fs.emptyDirSync('./session');
-                    process.exit(0);
-                }
-
-                if (connection === "close" && lastDisconnect?.error?.output?.statusCode !== 401) {
+                } else if (connection === 'close' && lastDisconnect?.error?.output?.statusCode !== 401) {
                     await delay(10000);
                     EmpirePP();
                 }
@@ -113,8 +110,9 @@ router.get('/pp/pair', async (req, res) => {
             console.error('Fatal error:', err);
             exec('pm2 restart empire-md-session');
             fs.emptyDirSync('./session');
+            fs.removeSync(imagePath);
             if (!res.headersSent) {
-                res.status(503).send({ error: "Service Unavailable" });
+                res.status(503).send({ error: 'Service Unavailable' });
             }
         }
     }
@@ -123,7 +121,7 @@ router.get('/pp/pair', async (req, res) => {
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('Uncaught exception:', err);
+    console.log('Uncaught exception:', err);
     exec('pm2 restart empire-md-session');
 });
 
