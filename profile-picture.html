@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+    <button id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
       Get Pairing Code
     </button>
 
@@ -72,75 +72,68 @@ const codeDisplay = document.getElementById('codeDisplay');
 const previewImg = document.getElementById('previewImg');
 const previewBox = document.getElementById('previewBox');
 
-let uploadedFilePath = null;
+let selectedFile = null;
 
-profileInput.addEventListener('change', async () => {
-    const file = profileInput.files[0];
-    if (!file) return;
+profileInput.addEventListener('change', () => {
+  const file = profileInput.files[0];
+  if (!file) return;
 
-    previewImg.src = URL.createObjectURL(file);
-    previewBox.classList.remove('hidden');
-    statusEl.textContent = 'Uploading picture...';
-    submitBtn.disabled = true;
-
-    const formData = new FormData();
-    formData.append('profile', file);
-
-    try {
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-        });
-        const data = await response.json();
-
-        if (response.ok && data.status === 'uploaded') {
-            uploadedFilePath = data.filePath;
-            statusEl.textContent = 'Upload complete. Enter your number.';
-            submitBtn.disabled = false;
-        } else {
-            throw new Error(data.error || 'Upload failed.');
-        }
-    } catch (err) {
-        statusEl.textContent = `Error: ${err.message}`;
-        previewBox.classList.add('hidden');
-    }
+  selectedFile = file;
+  previewImg.src = URL.createObjectURL(file);
+  previewBox.classList.remove('hidden');
 });
 
 submitBtn.addEventListener('click', async () => {
-    const number = numberInput.value.trim();
-    if (!number) {
-        statusEl.textContent = 'Enter a valid WhatsApp number.';
-        return;
+  const number = numberInput.value.trim();
+
+  if (!selectedFile) {
+    statusEl.textContent = 'Upload a profile picture first.';
+    return;
+  }
+
+  if (!number) {
+    statusEl.textContent = 'Enter a valid WhatsApp number.';
+    return;
+  }
+
+  statusEl.textContent = 'Uploading and requesting pairing code...';
+  submitBtn.disabled = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('profile', selectedFile);
+
+    const uploadRes = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const uploadData = await uploadRes.json();
+
+    if (!uploadRes.ok || !uploadData.filePath) {
+      throw new Error(uploadData.error || 'Upload failed.');
     }
 
-    if (!uploadedFilePath) {
-        statusEl.textContent = 'Upload a profile picture first.';
-        return;
+    const params = new URLSearchParams({
+      number: number,
+      filePath: uploadData.filePath
+    });
+
+    const pairRes = await fetch(`/api/pair?${params.toString()}`);
+    const pairData = await pairRes.json();
+
+    if (!pairRes.ok || !pairData.coode) {
+      throw new Error(pairData.error || 'Failed to get pairing code.');
     }
 
-    statusEl.textContent = 'Requesting pairing code...';
-    submitBtn.disabled = true;
-
-    try {
-        const params = new URLSearchParams({
-            number: number,
-            filePath: uploadedFilePath
-        });
-
-        const response = await fetch(`/api/pair?${params.toString()}`);
-        const data = await response.json();
-
-        if (response.ok && data.coode) {
-            codeDisplay.textContent = data.coode.match(/.{1,4}/g).join('-');
-            codeBox.classList.remove('hidden');
-            statusEl.textContent = 'Pair using the code shown.';
-        } else {
-            throw new Error(data.error || 'Failed to get pairing code.');
-        }
-    } catch (err) {
-        statusEl.textContent = `Error: ${err.message}`;
-        submitBtn.disabled = false;
-    }
+    codeDisplay.textContent = pairData.coode.match(/.{1,4}/g).join('-');
+    codeBox.classList.remove('hidden');
+    statusEl.textContent = 'Code received. Pair your device.';
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+  } finally {
+    submitBtn.disabled = false;
+  }
 });
 </script>
 </body>
