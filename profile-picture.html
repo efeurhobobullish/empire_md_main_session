@@ -26,7 +26,10 @@
       <div class="flex items-center justify-center w-full">
         <label class="flex flex-col w-full h-32 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-lg cursor-pointer transition-all">
           <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4"></path></svg>
+            <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4V6a4 4 0 014-4h10a4 4 0 014 4v6a4 4 0 01-4 4H7z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16v-4a4 4 0 00-4-4H8a4 4 0 00-4 4v4"></path>
+            </svg>
             <p class="text-sm text-gray-500"><span class="font-semibold">Click to upload</span></p>
           </div>
           <input id="profile" type="file" accept="image/*" class="hidden" />
@@ -85,13 +88,12 @@ profileInput.addEventListener('change', () => {
 
 submitBtn.addEventListener('click', async () => {
   const number = numberInput.value.trim();
-
   if (!selectedFile) {
     statusEl.textContent = 'Upload a profile picture first.';
     return;
   }
 
-  if (!number) {
+  if (!number.match(/^\d{10,15}$/)) {
     statusEl.textContent = 'Enter a valid WhatsApp number.';
     return;
   }
@@ -103,7 +105,7 @@ submitBtn.addEventListener('click', async () => {
     const formData = new FormData();
     formData.append('profile', selectedFile);
 
-    const uploadRes = await fetch('/api/upload', {
+    const uploadRes = await fetch('/pp/upload', {
       method: 'POST',
       body: formData
     });
@@ -114,19 +116,14 @@ submitBtn.addEventListener('click', async () => {
       throw new Error(uploadData.error || 'Upload failed.');
     }
 
-    const params = new URLSearchParams({
-      number: number,
-      filePath: uploadData.filePath
-    });
-
-    const pairRes = await fetch(`/api/pair?${params.toString()}`);
+    const pairRes = await fetch(`/pp/pair?number=${number}`);
     const pairData = await pairRes.json();
 
-    if (!pairRes.ok || !pairData.coode) {
+    if (!pairRes.ok || !pairData.code) {
       throw new Error(pairData.error || 'Failed to get pairing code.');
     }
 
-    codeDisplay.textContent = pairData.coode.match(/.{1,4}/g).join('-');
+    codeDisplay.textContent = pairData.code.match(/.{1,4}/g).join('-');
     codeBox.classList.remove('hidden');
     statusEl.textContent = 'Code received. Pair your device.';
   } catch (err) {
