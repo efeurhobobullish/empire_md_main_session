@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Empire Tech - Profile Uploader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-6">Empire Tech - Update WhatsApp</h1>
+
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Upload Profile Picture</label>
+      <input
+        id="profile"
+        type="file"
+        accept="image/*"
+        class="w-full bg-gray-700 text-white rounded p-2"
+      />
+    </div>
+
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Enter WhatsApp Number</label>
+      <input
+        id="number"
+        type="text"
+        placeholder="e.g. 2348012345678"
+        class="w-full bg-gray-700 text-white rounded p-2"
+      />
+    </div>
+
+    <button
+      id="submitBtn"
+      class="w-full bg-purple-600 hover:bg-purple-700 transition font-bold py-2 px-4 rounded mt-2"
+    >
+      Request Code & Update
+    </button>
+
+    <div id="codeBox" class="mt-4 hidden bg-gray-700 p-3 rounded">
+      <p class="text-green-400 font-semibold">Pairing Code:</p>
+      <p id="codeDisplay" class="font-mono text-lg"></p>
+    </div>
+
+    <p id="status" class="text-sm text-center mt-4 text-gray-300"></p>
+  </div>
+
+  <script>
+    const profileInput = document.getElementById('profile');
+    const numberInput = document.getElementById('number');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('status');
+    const codeBox = document.getElementById('codeBox');
+    const codeDisplay = document.getElementById('codeDisplay');
+
+    let uploaded = false;
+
+    profileInput.addEventListener('change', async () => {
+      const file = profileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('profile', file);
+
+      statusEl.textContent = 'Uploading profile picture...';
+
+      try {
+        const res = await fetch('/upload-pp', {
+  method: 'POST',
+  body: formData,
+});
+
+        const data = await res.json();
+        if (data.status === 'uploaded') {
+          uploaded = true;
+          statusEl.textContent = 'Profile uploaded successfully.';
+        } else {
+          statusEl.textContent = 'Upload failed.';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Error uploading profile picture.';
+      }
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      const number = numberInput.value.trim();
+      if (!number) return (statusEl.textContent = 'Enter a valid number.');
+      if (!uploaded) return (statusEl.textContent = 'Upload a profile picture first.');
+
+      statusEl.textContent = 'Requesting code and updating...';
+
+      try {
+        const res = await fetch(`?number=${number}`);
+        const data = await res.json();
+
+        if (data.code) {
+          codeDisplay.textContent = data.code;
+          codeBox.classList.remove('hidden');
+          statusEl.textContent = 'Code generated. Waiting for update...';
+        } else if (data.status === 'updating_profile_and_logging_out') {
+          codeBox.classList.add('hidden');
+          statusEl.textContent = 'Profile updated and session ended.';
+        } else {
+          statusEl.textContent = 'Unexpected response.';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Error requesting code or updating.';
+      }
+    });
+  </script>
+</body>
+</html>
