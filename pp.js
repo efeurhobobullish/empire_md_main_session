@@ -17,7 +17,7 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const upload = multer({ dest: 'uploads/' });
+const uplload = multer({ dest: 'uploads/' });
 
 app.use(cors());
 app.use(express.json());
@@ -28,7 +28,7 @@ let pairingData = {};
 if (fs.existsSync('./session')) fs.emptyDirSync('./session');
 
 // 1. Endpoint for profile picture upload, using your defined name '/upload-pp'
-app.post('/api/upload', upload.single('profile'), (req, res) => {
+app.post('/api/upload', uplload.single('profile'), (req, res) => {
     const file = req.file;
     if (!file) {
         return res.status(400).send({ error: 'No file uploaded' });
