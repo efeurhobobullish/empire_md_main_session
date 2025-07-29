@@ -61,6 +61,11 @@ app.get('/donate', (req, res) => {
   res.sendFile(path.join(__dirname, 'donate.html'));
 });
 
+
+app.get('/profile-picture', (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile-picture.html'));
+});
+
 app.get('/session', (req, res) => {
   res.sendFile(path.join(__dirname, 'session.html'));
 });
