@@ -63,9 +63,7 @@ router.get('/', async (req, res) => {
                         }
 
                         const mega_url = await upload(fs.createReadStream(auth_path + 'creds.json'), `${randomMegaId()}.json`);
-                        const sid = mega_url.includes("https://mega.nz/file/")
-                        ? 'Empire_Md~' + mega_url.split("https://mega.nz/file/")[1]
-                        : 'Error: Invalid URL';
+                                                const sid = mega_url.replace('https://mega.nz/file/', '');
                         await EmpirePairWeb.sendMessage(user_jid, { text: sid });
 
                         await delay(5000);
